@@ -23,7 +23,7 @@ RUN /usr/bin/mkdir ~/go
 RUN export GOPATH=~/go && export PATH="$PATH:$GOPATH/bin" && go get github.com/tools/godep
 
 RUN /usr/bin/mkdir -p /tmp/talkaInstaller
-RUN cd /tmp/talkaInstaller && curl -f -L -O  https://github.com/chech0x/talka/releases/download/0.0.1-dev/talka-cli-0.0.1-dev-linux-amd64.run && sh talka-cli-0.0.1-dev-linux-amd64.run &&  /usr/bin/mv talka /usr/bin/ &&  cd / && rm -f -R /tmp/talkaInstaller
+RUN cd /tmp/talkaInstaller && curl -f -L -O  https://github.com/chech0x/talka/releases/download/0.0.2-dev/talka-cli-0.0.2-dev-linux-amd64.run && sh talka-cli-0.0.1-dev-linux-amd64.run &&  /usr/bin/mv talka /usr/bin/ &&  cd / && rm -f -R /tmp/talkaInstaller
 
 CMD eval `ssh-agent -s`
 CMD export GOPATH=~/go
