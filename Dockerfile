@@ -1,38 +1,35 @@
+#Build con:
+#docker build -t klabs/talka-cli:0.1.0 -f Dockerfile .
+#Push:
+#docker tag klabs/talka-cli:0.1.0 docker-r01.kvz.local:5000/klabs/talka-cli:0.1.0
+#docker push docker-r01.kvz.local:5000/klabs/talka-cli:0.1.0
+#
+#Para usar en windows se debe tener un directorio con las claves públicas y privadas:
+# docker run -ti --rm -v /c/Users/$USERNAME/developer/ssh:/root/.ssh -v /c/Users/$USERNAME/developer/workdir:/root/workdir -e SSH_KEY_FILE=ARCHIVO_CLAVE_PRIVADA docker-r01.kvz.local:5000/klabs/talka-cli:0.1.0
+#donde: ARCHIVO_CLAVE_PRIVADA debe cambiarse por el nombre del archivo de clave privada rsa
+#Dentro del contenedor podemos loguearnos a talka-cli
+# deis login deis.talka.kvz.local
+
 FROM centos:7
-MAINTAINER "chech0x" <scampos@klabs.cl>
-ENV container docker
-RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done); \
-rm -f /lib/systemd/system/multi-user.target.wants/*;\
-rm -f /etc/systemd/system/*.wants/*;\
-rm -f /lib/systemd/system/local-fs.target.wants/*; \
-rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
-rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
-rm -f /lib/systemd/system/basic.target.wants/*;\
-rm -f /lib/systemd/system/anaconda.target.wants/*;
-VOLUME [ "/sys/fs/cgroup" ]
+MAINTAINER Sergio Campos <scampos@klabs.cl>
 
+RUN yum -y update && \
+ yum -y install git bzip2 unzip net-tools && \
+ curl -sSL http://deis.io/deis-cli/install.sh | sh && \
+ mv deis  /usr/local/bin/deis && \
+ yum -y clean all
 
-RUN /usr/bin/yum -y install net-tools
-RUN /usr/bin/yum -y install git
-RUN /usr/bin/yum -y install go
-RUN /usr/bin/yum -y install make
-RUN /usr/bin/yum -y install file
-RUN /usr/bin/yum -y install bzip2
+RUN  echo "#!/bin/bash" > /root/prepareSSH.sh && \
+  echo "" >> /root/prepareSSH.sh && \
+  echo "mkdir -p /root/.ssh" >> /root/prepareSSH.sh && \
+#  echo "cp /root/ssh/* /root/.ssh" >> hello.sh && \
+  echo "chmod -R 500 /root/.ssh" >> /root/prepareSSH.sh && \
+  echo "eval \`ssh-agent -s\`" >> /root/prepareSSH.sh && \
+  echo "ssh-add /root/.ssh/\$SSH_KEY_FILE" >> /root/prepareSSH.sh && \
+  echo "" >> /root/.bash_profile && \
+  echo ". /root/prepareSSH.sh" >> /root/.bash_profile
 
-RUN /usr/bin/mkdir ~/go
-RUN export GOPATH=~/go && export PATH="$PATH:$GOPATH/bin" && go get github.com/tools/godep
+WORKDIR /root/workdir
 
-RUN /usr/bin/mkdir -p /tmp/talkaInstaller
-RUN cd /tmp/talkaInstaller && curl -f -L -O  https://github.com/chech0x/talka/releases/download/0.0.2-dev/talka-cli-0.0.2-dev-linux-amd64.run && sh talka-cli-0.0.1-dev-linux-amd64.run &&  /usr/bin/mv talka /usr/bin/ &&  cd / && rm -f -R /tmp/talkaInstaller
-
-CMD eval `ssh-agent -s`
-CMD export GOPATH=~/go
-CMD export PATH=$PATH:$GOPATH/bin
-
-CMD ["/usr/sbin/init"]
-
-
-
-
-
-
+ENTRYPOINT ["/bin/bash"]
+CMD ["-l"]
