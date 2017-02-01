@@ -1,11 +1,11 @@
 #Build con:
-#docker build -t klabs/talka-cli:0.1.0 -f Dockerfile .
+#docker build -t klabs/talka-cli:0.1.1 -f Dockerfile .
 #Push:
-#docker tag klabs/talka-cli:0.1.0 docker-r01.kvz.local:5000/klabs/talka-cli:0.1.0
-#docker push docker-r01.kvz.local:5000/klabs/talka-cli:0.1.0
+#docker tag klabs/talka-cli:0.1.0 registry.talka.cl/klabs/talka-cli:0.1.1
+#docker push registry.talka.cl/klabs/talka-cli:0.1.1
 #
 #Para usar en windows se debe tener un directorio con las claves públicas y privadas:
-# docker run -ti --rm -v /c/Users/$USERNAME/developer/ssh:/root/.ssh -v /c/Users/$USERNAME/developer/workdir:/root/workdir -e SSH_KEY_FILE=ARCHIVO_CLAVE_PRIVADA docker-r01.kvz.local:5000/klabs/talka-cli:0.1.0
+# docker run -ti --rm -v /c/Users/$USERNAME/developer/ssh:/root/.ssh -v /c/Users/$USERNAME/developer/workdir:/root/workdir -e SSH_KEY_FILE=ARCHIVO_CLAVE_PRIVADA registry.talka.cl/klabs/talka-cli:0.1.0
 #donde: ARCHIVO_CLAVE_PRIVADA debe cambiarse por el nombre del archivo de clave privada rsa
 #Dentro del contenedor podemos loguearnos a talka-cli
 # deis login deis.talka.kvz.local
@@ -16,7 +16,7 @@ MAINTAINER Sergio Campos <scampos@klabs.cl>
 RUN yum -y update && \
  yum -y install git bzip2 unzip net-tools && \
  curl -sSL http://deis.io/deis-cli/install.sh | sh && \
- mv deis  /usr/local/bin/deis && \
+ mv deis  /usr/local/bin/talka && \
  yum -y clean all
 
 RUN  echo "#!/bin/bash" > /root/prepareSSH.sh && \
@@ -31,5 +31,9 @@ RUN  echo "#!/bin/bash" > /root/prepareSSH.sh && \
 
 WORKDIR /root/workdir
 
+ARG GIT_COMMIT=unkown \
+ GIT_REPOSITORY=https://github.com/chech0x/talka-cli-docker.git
+LABEL git-commit=$GIT_COMMIT
+LABEL git_repository=$GIT_REPOSITORY
 ENTRYPOINT ["/bin/bash"]
 CMD ["-l"]
