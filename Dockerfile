@@ -1,7 +1,7 @@
 #Build con:
-#docker build -t klabs/talka-cli:0.1.1 -f Dockerfile .
+#docker build -t klabs/talka-cli:0.1.1 --build-arg GIT_COMMIT=$( git log -n 1 origin/master | grep -e "^commit\s" | awk '{print $2}') -f Dockerfile .
 #Push:
-#docker tag klabs/talka-cli:0.1.0 registry.talka.cl/klabs/talka-cli:0.1.1
+#docker tag klabs/talka-cli:0.1.1 registry.talka.cl/klabs/talka-cli:0.1.1
 #docker push registry.talka.cl/klabs/talka-cli:0.1.1
 #
 #Para usar en windows se debe tener un directorio con las claves públicas y privadas:
@@ -31,9 +31,10 @@ RUN  echo "#!/bin/bash" > /root/prepareSSH.sh && \
 
 WORKDIR /root/workdir
 
-ARG GIT_COMMIT=unkown \
- GIT_REPOSITORY=https://github.com/chech0x/talka-cli-docker.git
+ARG GIT_COMMIT=unkown
+ARG GIT_REPOSITORY=https://github.com/chech0x/talka-cli-docker.git
 LABEL git-commit=$GIT_COMMIT
 LABEL git_repository=$GIT_REPOSITORY
+
 ENTRYPOINT ["/bin/bash"]
 CMD ["-l"]
